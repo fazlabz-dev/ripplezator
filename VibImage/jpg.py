@@ -2,6 +2,8 @@ import sys
 import subprocess
 import os
 
+from config import *
+
 def get_executable_path(filename):
     """Get the full path of an executable located in a specific subdirectory of the script's directory."""
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -12,8 +14,12 @@ def get_executable_path(filename):
 
 def check_executables():
     """Check if the required executables are available in the specified directories."""
-    magick_path = get_executable_path('imagemagick\\magick.exe')
-    exiftool_path = get_executable_path('exiftool\\exiftool.exe')
+    if cur_os == "windows":
+        magick_path = get_executable_path('imagemagick\\magick.exe')
+        exiftool_path = get_executable_path('exiftool\\exiftool.exe')
+    if cur_os == "linux":
+        magick_path = get_executable_path('imagemagick/magick')
+        exiftool_path = get_executable_path('exiftool/exiftool')
 
     if magick_path is None:
         print("ImageMagick executable (magick.exe) not found in the specified directory.")
@@ -66,6 +72,9 @@ def create_thumbnail(input_path, output_path, magick_path, exiftool_path):
         
         # Insert thumbnail into output image
         subprocess.run([exiftool_path, '-overwrite_original', f'-ThumbnailImage<={thumb_path}', output_path], check=True)
+
+        # Remove seperate thumbnail file
+        os.remove(thumb_path)
 
         print("Image processing completed successfully.")
     
